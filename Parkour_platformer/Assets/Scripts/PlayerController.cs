@@ -27,10 +27,10 @@ public class PlayerController : MonoBehaviour {
 		m_animator.SetFloat("input_x", moveDistance > 0 ? 1 : -1);
 	}
 
-	void handleJump () {
+	public void handleJump () {
 	}
 
-	void handleCastAbility () {
+	public void handleCastAbility () {
 
 	}
 }
