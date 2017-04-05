@@ -1,3 +1,5 @@
 
 *.meta
 Parkour_platformer/Library/*
+Parkour_platformer/Temp
+_DS_Store
