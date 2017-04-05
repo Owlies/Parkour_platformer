@@ -135,6 +135,10 @@ namespace Tiled2Unity
             // We will create and assign our own materials.
             // This gives us more control over their construction.
             modelImporter.importMaterials = false;
+
+#if UNITY_5_6_OR_NEWER
+            // Note: could do unoptimize mesh here with 5.6 or newer
+#endif
         }
 
         private void OnPostprocessModel(GameObject gameObject)
