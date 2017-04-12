@@ -43,14 +43,16 @@ public class PlayerController : MonoBehaviour {
 		bool isOnGround = isGrounded();
 		updatePlayerHorizontally();
 
-		handleKeyBoardInput(isOnGround);
-
 		checkPlayerJumpingAnimation(isOnGround);
 
 		checkDeath();
 	}
 	// Update is called once per frame
 	void Update() {
+		bool isOnGround = isGrounded();
+		
+		handleKeyBoardInput(isOnGround);
+
 		handleCastWavesKeyboard();
 	}
 
@@ -186,16 +188,6 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
-	public /// <summary>
-	/// Sent when an incoming collider makes contact with this object's
-	/// collider (2D physics only).
-	/// </summary>
-	/// <param name="other">The Collision2D data associated with this collision.</param>
-	void OnCollisionEnter2D(Collision2D other) {
-		if(other.gameObject.CompareTag("trap")) {
-			death();
-		}
-	}
 	#endregion
 
 }

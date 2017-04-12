@@ -10,7 +10,7 @@ public class WaveTriggerController : MonoBehaviour {
 	private Animator mAnimator;
 	// Use this for initialization
 	void Start () {
-		mMusicManager = GameObject.FindGameObjectWithTag("musicManager").GetComponent<MusicManager>();
+		//mMusicManager = GameObject.FindGameObjectWithTag("musicManager").GetComponent<MusicManager>();
 		mAnimator = this.GetComponent<Animator>();
 	}
 	
@@ -37,7 +37,7 @@ public class WaveTriggerController : MonoBehaviour {
 	}
 
 	void handleWaveAction() {
-		mMusicManager.PlayWaveTriggerSound();
+		// mMusicManager.PlayWaveTriggerSound();
 		mAnimator.SetBool("triggerEnabled", true);
 		triggerTimer = 0.0f;
 		if (resetTime > 0) {
