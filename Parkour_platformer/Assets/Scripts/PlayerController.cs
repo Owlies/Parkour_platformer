@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour {
 	public float WavePressMaximumTime = 4.0f;
 	private bool isCastingWave = false;
 	
+	#region LifeCycle
 	// Use this for initialization
 	void Start () {
 		mRigidbody = this.GetComponent<Rigidbody2D>();
@@ -53,6 +54,9 @@ public class PlayerController : MonoBehaviour {
 		handleCastWavesKeyboard();
 	}
 
+	#endregion
+
+	#region PlayerMovement
 	void checkPlayerJumpingAnimation(bool isOnGround) {
 		if (isInAir && mRigidbody.velocity.y < -0.1f) {
 			isFalling = true;
@@ -96,6 +100,9 @@ public class PlayerController : MonoBehaviour {
 		return hit.collider != null;
 	}
 
+	#endregion
+
+	#region PlayerLogic
 	private void playerRestart() {
 		death();
 	}
@@ -178,4 +185,17 @@ public class PlayerController : MonoBehaviour {
 			return WaveController.WaveType.Long;
 		}
 	}
+
+	public /// <summary>
+	/// Sent when an incoming collider makes contact with this object's
+	/// collider (2D physics only).
+	/// </summary>
+	/// <param name="other">The Collision2D data associated with this collision.</param>
+	void OnCollisionEnter2D(Collision2D other) {
+		if(other.gameObject.CompareTag("trap")) {
+			death();
+		}
+	}
+	#endregion
+
 }
