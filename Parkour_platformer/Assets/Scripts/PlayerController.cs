@@ -1,77 +1,182 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour {
-	public float m_runningSpeed;
-	public float m_jumpingForce;
-	public LayerMask groundLayer;
-	private float maxJumpingForce = 1000;
-	private Rigidbody2D m_rigidBody;
-	private Animator m_animator;
-	private bool isMoving;
-	private bool isFalling;
-	private bool isInAir;
-	private float distanceToGround;
 
+	// Components
+	private Rigidbody2D mRigidbody;
+	private WaveController mWaveController;
+	private GameObject mWaveCollider;
+	private Animator mAnimator;
+	private MusicManager mMusicManager;
+
+	// Movements
+	public float mJumpForce = 8f;
+	private float distanceToGround;
+	public float horizontalSpeed = 2.5f;
+	private bool isFalling = false;
+	private bool isInAir = false;
+
+	// Ability
+	// Used as initial amount
+	public int currentWaveAmount = 600;
+	private float wavePressedTime = 0;
+	public float WaveMidPressTimeThreshold = 0.1f;
+	public float WaveLongPressTimeThreshold = 2.0f;
+	public float WavePressMaximumTime = 4.0f;
+	private bool isCastingWave = false;
+	
 	// Use this for initialization
 	void Start () {
-		m_rigidBody = this.GetComponent<Rigidbody2D>();
-		m_animator = this.GetComponent<Animator>();
-		isMoving = true;
-		isInAir = false;
-		m_animator.SetBool("isMoving", isMoving);
-		distanceToGround = this.GetComponent<BoxCollider2D>().bounds.max.y - m_rigidBody.transform.position.y;
-		Debug.Log("distanceToGround: " + distanceToGround);
+		mRigidbody = this.GetComponent<Rigidbody2D>();
+		mWaveCollider = GameObject.FindGameObjectWithTag("waveCollider");
+		mWaveController = mWaveCollider.GetComponent<WaveController>();
+		isCastingWave = false;
+		distanceToGround = this.GetComponent<BoxCollider2D>().bounds.max.y - mRigidbody.transform.position.y;
+		mAnimator = this.GetComponent<Animator>();
+		//mMusicManager = GameObject.FindGameObjectWithTag("musicManager").GetComponent<MusicManager>();
 	}
 	
+	void FixedUpdate() {
+		handlePlayerMove();
+		handlePlayerRestart();
+		//checkPlayerJumpingAnimation();
+		checkDeath();
+	}
 	// Update is called once per frame
-	void Update () {
-		
+	void Update() {
+		handleCastWaves();
 	}
 
-	void FixedUpdate () {
-		handleMove();
-		checkPlayerJumpingAnimation();
-	}
+	// void checkPlayerJumpingAnimation() {
+	// 	bool isOnGround = isGrounded();
+	// 	if (!isOnGround && mRigidbody.velocity.y < -0.1f) {
+	// 		isFalling = true;
+	// 		isInAir = true;
+	// 		mAnimator.SetBool("isFalling", isFalling);
+	// 	}
 
-	void handleMove () {
-		m_rigidBody.velocity = new Vector2(m_runningSpeed, m_rigidBody.velocity.y);
-		m_animator.SetFloat("input_x", m_runningSpeed > 0 ? 1 : -1);
+	// 	if (isFalling && isOnGround) {
+	// 		mAnimator.SetTrigger("touchGround");
+	// 		mRigidbody.velocity.Set(mRigidbody.velocity.x, 0);
+	// 		isFalling = false;
+	// 		isInAir = false;
+	// 		mAnimator.SetBool("isFalling", isFalling);
+	// 	}
+	// }
+
+	void handlePlayerMove() {
+		mRigidbody.velocity = new Vector2(horizontalSpeed, mRigidbody.velocity.y);
+
 		handleJump();
 	}
 
 	public void handleJump () {
 		if (isGrounded() && !isInAir && Input.GetKeyDown(KeyCode.UpArrow)) {
-			float jumpForce = m_jumpingForce * Time.deltaTime;
-			m_rigidBody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+			float jumpForce = mJumpForce * Time.deltaTime;
+			mRigidbody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
 			isInAir = true;
 		}
 	}
 
 	public bool isGrounded() {
-		RaycastHit2D hit = Physics2D.Raycast(m_rigidBody.transform.position, Vector2.down, distanceToGround + 0.5f, groundLayer);
+		RaycastHit2D hit = Physics2D.Raycast(mRigidbody.transform.position, Vector2.down, distanceToGround + 0.6f);
+		if (hit.collider != null && hit.collider.CompareTag("photon")) {
+			return false;
+		}
 		return hit.collider != null;
 	}
 
-	void checkPlayerJumpingAnimation() {
-		bool isOnGround = isGrounded();
-		if (!isOnGround && m_rigidBody.velocity.y < -0.1f) {
-			isFalling = true;
-			isInAir = true;
-			m_animator.SetBool("isFalling", isFalling);
+	private void handlePlayerRestart() {
+		if (Input.GetKeyDown(KeyCode.R)) {
+			death();
+		}
+	}
+	private bool canCastWave() {
+		if (isCastingWave) {
+			return false;
 		}
 
-		if (isFalling && isOnGround) {
-			m_animator.SetTrigger("touchGround");
-			m_rigidBody.velocity.Set(m_rigidBody.velocity.x, 0);
-			isFalling = false;
-			isInAir = false;
-			m_animator.SetBool("isFalling", isFalling);
+		if (currentWaveAmount <= 0) {
+			return false;
+		}
+
+		if (!mWaveController.canCastWave()) {
+			return false;
+		}
+
+		return true;
+	}
+	public void handleCastWaves() {
+		if (Input.GetKeyDown(KeyCode.Space) && canCastWave()) {
+			isCastingWave = true;
+		}
+
+		if (!isCastingWave) {
+			return;
+		}
+
+		if (Input.GetKey(KeyCode.Space)) {
+			wavePressedTime += Time.deltaTime;
+		}
+
+		if (Input.GetKeyUp(KeyCode.Space) || wavePressedTime >= WavePressMaximumTime) {
+			if (wavePressedTime < WaveMidPressTimeThreshold) {
+				mWaveController.castWave(WaveController.WaveType.Short);
+			} else if (wavePressedTime < WaveLongPressTimeThreshold) {
+				mWaveController.castWave(WaveController.WaveType.Mid);
+			} else {
+				mWaveController.castWave(WaveController.WaveType.Long);
+			}
+			mAnimator.SetTrigger("castAbility");
+			currentWaveAmount -= 1;
+			//mMusicManager.PlayAbilitySound();
+			wavePressedTime = 0.0f;
+			isCastingWave = false;
+		}
+	}
+	// Deprecated
+	public void increaseWaveAmount(int amount) {
+		currentWaveAmount += amount;
+	}
+
+	private void checkDeath() {
+		if (mRigidbody.transform.position.y <= -100) {
+			death();
 		}
 	}
 
-	public void handleCastAbility () {
+	public void death() {
+		enabled = false;
+		//mMusicManager.PlayDeathSound();
+		StartCoroutine(reloadAfterTime(0.1f));
+	}
 
+	 IEnumerator reloadAfterTime(float time) {
+		 yield return new WaitForSeconds(time);
+     	 Scene loadedLevel = SceneManager.GetActiveScene();
+    	 SceneManager.LoadScene (loadedLevel.buildIndex);
+		//  mMusicManager.PlayRespwanSound();
+	}
+
+	public float waveCastCDLeft() {
+		float cd = mWaveController.waveCastCD();
+		if (cd < 0) {
+			cd = 0;
+		}
+
+		return cd;
+	}
+
+	public WaveController.WaveType waveTypeMessageForUI() {
+		if (wavePressedTime < WaveMidPressTimeThreshold) {
+			return WaveController.WaveType.Short;
+		} else if (wavePressedTime < WaveLongPressTimeThreshold) {
+			return WaveController.WaveType.Mid;
+		} else {
+			return WaveController.WaveType.Long;
+		}
 	}
 }
