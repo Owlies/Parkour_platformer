@@ -2,4 +2,6 @@
 *.meta
 Parkour_platformer/Library/*
 Parkour_platformer/Temp
+Parkour_platformer/obj/*
 _DS_Store
+*.csproj
