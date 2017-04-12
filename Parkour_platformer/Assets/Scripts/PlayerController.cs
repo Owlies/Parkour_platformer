@@ -40,9 +40,11 @@ public class PlayerController : MonoBehaviour {
 	}
 	
 	void FixedUpdate() {
-		handlePlayerMove();
+		bool isOnGround = isGrounded();
+		updatePlayerHorizontally();
+		handleJump(isOnGround);
+		checkPlayerJumpingAnimation(isOnGround);
 		handlePlayerRestart();
-		//checkPlayerJumpingAnimation();
 		checkDeath();
 	}
 	// Update is called once per frame
@@ -50,39 +52,33 @@ public class PlayerController : MonoBehaviour {
 		handleCastWaves();
 	}
 
-	// void checkPlayerJumpingAnimation() {
-	// 	bool isOnGround = isGrounded();
-	// 	if (!isOnGround && mRigidbody.velocity.y < -0.1f) {
-	// 		isFalling = true;
-	// 		isInAir = true;
-	// 		mAnimator.SetBool("isFalling", isFalling);
-	// 	}
-
-	// 	if (isFalling && isOnGround) {
-	// 		mAnimator.SetTrigger("touchGround");
-	// 		mRigidbody.velocity.Set(mRigidbody.velocity.x, 0);
-	// 		isFalling = false;
-	// 		isInAir = false;
-	// 		mAnimator.SetBool("isFalling", isFalling);
-	// 	}
-	// }
-
-	void handlePlayerMove() {
-		mRigidbody.velocity = new Vector2(horizontalSpeed, mRigidbody.velocity.y);
-
-		handleJump();
+	void checkPlayerJumpingAnimation(bool isOnGround) {
+		if (isInAir && mRigidbody.velocity.y < -0.1f) {
+			isFalling = true;
+			//mAnimator.SetBool("isFalling", isFalling);
+		} else if (isFalling && isOnGround) {
+			//mAnimator.SetTrigger("touchGround");
+			mRigidbody.velocity.Set(mRigidbody.velocity.x, 0);
+			isFalling = false;
+			isInAir = false;
+			//mAnimator.SetBool("isFalling", isFalling);
+		}
 	}
 
-	public void handleJump () {
-		if (isGrounded() && !isInAir && Input.GetKeyDown(KeyCode.UpArrow)) {
-			float jumpForce = mJumpForce * Time.deltaTime;
+	void updatePlayerHorizontally() {
+		mRigidbody.velocity = new Vector2(horizontalSpeed, mRigidbody.velocity.y);
+	}
+
+	public void handleJump (bool isOnGround) {
+		if (isOnGround && !isInAir && Input.GetKeyDown(KeyCode.UpArrow)) {
+			float jumpForce = mJumpForce;
 			mRigidbody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
 			isInAir = true;
 		}
 	}
 
 	public bool isGrounded() {
-		RaycastHit2D hit = Physics2D.Raycast(mRigidbody.transform.position, Vector2.down, distanceToGround + 0.6f);
+		RaycastHit2D hit = Physics2D.Raycast(mRigidbody.transform.position, Vector2.down, distanceToGround + 0.5f);
 		if (hit.collider != null && hit.collider.CompareTag("photon")) {
 			return false;
 		}
