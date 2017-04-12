@@ -21,7 +21,6 @@ public class PhotonController : MonoBehaviour {
 			return;
 		}
 
-		Debug.Log("Photon Destroy: " + collider);
 		mEffectController.onPhotonDestroyed(photonId);
 		Destroy(gameObject);
 	}
