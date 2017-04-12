@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour {
 
 	// Ability
 	// Used as initial amount
-	public int currentWaveAmount = 600;
 	private float wavePressedTime = 0;
 	public float WaveMidPressTimeThreshold = 0.1f;
 	public float WaveLongPressTimeThreshold = 2.0f;
@@ -51,7 +50,7 @@ public class PlayerController : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update() {
-		handleCastWaves();
+		handleCastWavesKeyboard();
 	}
 
 	void checkPlayerJumpingAnimation(bool isOnGround) {
@@ -105,17 +104,13 @@ public class PlayerController : MonoBehaviour {
 			return false;
 		}
 
-		if (currentWaveAmount <= 0) {
-			return false;
-		}
-
 		if (!mWaveController.canCastWave()) {
 			return false;
 		}
 
 		return true;
 	}
-	public void handleCastWaves() {
+	public void handleCastWavesKeyboard() {
 		if (Input.GetKeyDown(KeyCode.Space) && canCastWave()) {
 			isCastingWave = true;
 		}
@@ -129,7 +124,11 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (Input.GetKeyUp(KeyCode.Space) || wavePressedTime >= WavePressMaximumTime) {
-			if (wavePressedTime < WaveMidPressTimeThreshold) {
+			castWave();
+		}
+	}
+	public void castWave() {
+		if (wavePressedTime < WaveMidPressTimeThreshold) {
 				mWaveController.castWave(WaveController.WaveType.Short);
 			} else if (wavePressedTime < WaveLongPressTimeThreshold) {
 				mWaveController.castWave(WaveController.WaveType.Mid);
@@ -137,15 +136,9 @@ public class PlayerController : MonoBehaviour {
 				mWaveController.castWave(WaveController.WaveType.Long);
 			}
 			//mAnimator.SetTrigger("castAbility");
-			currentWaveAmount -= 1;
 			//mMusicManager.PlayAbilitySound();
 			wavePressedTime = 0.0f;
 			isCastingWave = false;
-		}
-	}
-	// Deprecated
-	public void increaseWaveAmount(int amount) {
-		currentWaveAmount += amount;
 	}
 
 	private void checkDeath() {

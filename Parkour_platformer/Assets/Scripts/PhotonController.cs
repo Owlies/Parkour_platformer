@@ -15,9 +15,13 @@ public class PhotonController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D collider) {
-		if (!collider.CompareTag("waveBlocker")) {
+		if (!collider.CompareTag("waveBlocker") && 
+		!collider.CompareTag("ground") &&
+		!collider.CompareTag("trap")) {
 			return;
 		}
+
+		Debug.Log("Photon Destroy: " + collider);
 		mEffectController.onPhotonDestroyed(photonId);
 		Destroy(gameObject);
 	}

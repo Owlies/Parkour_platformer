@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PhotonWaveEffectsController : MonoBehaviour {
+	public WaveController waveController;
 	private const float ShortWaveMultiplier = 6.75f;
 	private const float MidWaveMultiplier = 7.5f;
 	private const float LongWaveMultiplier = 4.5f;
 	public GameObject photonPrefab;
 	public int numberOfPhoton = 180;
 	public Color waveColor = Color.blue;
-	public float photonSpeedShort = 1.0f;
-	public float photonSpeedMid = 0.75f;
-	public float photonSpeedLong = 0.5f;
-	public float photonShortMaximumRange = 5.0f;
-	public float photonMidMaximumRange = 7.5f;
-	public float photonLongMaximumRange = 10.0f;
+	private float photonSpeedShort = 1.0f;
+	private float photonSpeedMid = 0.75f;
+	private float photonSpeedLong = 0.5f;
+	private float photonShortMaximumRange = 5.0f;
+	private float photonMidMaximumRange = 7.5f;
+	private float photonLongMaximumRange = 10.0f;
 	private float photonSpeed = 0.5f;
 	private float photonMaximumRange = 10.0f;
 	private GameObject[] photons;
@@ -39,6 +40,14 @@ public class PhotonWaveEffectsController : MonoBehaviour {
 		lastCastTime = 0;
 		destroyTimeLimit = 60.0f;
 		mPlayer = GameObject.FindGameObjectWithTag("Player");
+
+		photonSpeedShort = waveController.ShortWaveSpeed;
+		photonSpeedMid = waveController.MidWaveSpeed;
+		photonSpeedLong = waveController.LongWaveSpeed;
+
+		photonShortMaximumRange = waveController.ShortWaveMaximumRadius;
+		photonMidMaximumRange = waveController.MidWaveMaximumRadius;
+		photonLongMaximumRange = waveController.LongWaveMaximumRadius;
 	}
 
 	private void createLine(Vector3 startPos, Vector3 endPos) {
@@ -126,6 +135,7 @@ public class PhotonWaveEffectsController : MonoBehaviour {
 	}
 
 	public void clearLinesAndPhotons() {
+		Debug.Log("clearLinesAndPhotons");
 		for (int i = 0; i < numberOfPhoton; ++i) {
 			if (lines[i] != null) {
 				Destroy(lines[i].gameObject);

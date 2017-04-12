@@ -9,10 +9,10 @@ public class WaveController : MonoBehaviour {
 	private PhotonWaveEffectsController mWaveEffectController;
 	public float waveCastCoolDown = 3.0f;
 	private float waveCastTimer;
-	public float waveSpeed = 0.5f;
+	private float waveSpeed = 0.5f;
 	public enum WaveType {Long, Mid, Short};
-	public WaveType mWaveType;
-	public float waveMaxRadius = 10.0f;
+	private WaveType mWaveType;
+	private float waveMaxRadius = 10.0f;
 	public float LongWaveSpeed = 0.5f;
 	public float LongWaveMaximumRadius = 1000.0f;
 	public float MidWaveSpeed = 0.75f;
@@ -74,8 +74,6 @@ public class WaveController : MonoBehaviour {
 	void waveStart(WaveType waveType) {
 		mWaveEffectController.PlayEffect(waveType);
 		castingWave = true;
-		
-		
 	}
 
 	void updateWave() {
