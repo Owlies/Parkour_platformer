@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour {
 			} else {
 				mWaveController.castWave(WaveController.WaveType.Long);
 			}
-			mAnimator.SetTrigger("castAbility");
+			//mAnimator.SetTrigger("castAbility");
 			currentWaveAmount -= 1;
 			//mMusicManager.PlayAbilitySound();
 			wavePressedTime = 0.0f;
