@@ -42,9 +42,11 @@ public class PlayerController : MonoBehaviour {
 	void FixedUpdate() {
 		bool isOnGround = isGrounded();
 		updatePlayerHorizontally();
-		handleJump(isOnGround);
+
+		handleKeyBoardInput(isOnGround);
+
 		checkPlayerJumpingAnimation(isOnGround);
-		handlePlayerRestart();
+
 		checkDeath();
 	}
 	// Update is called once per frame
@@ -69,8 +71,18 @@ public class PlayerController : MonoBehaviour {
 		mRigidbody.velocity = new Vector2(horizontalSpeed, mRigidbody.velocity.y);
 	}
 
-	public void handleJump (bool isOnGround) {
-		if (isOnGround && !isInAir && Input.GetKeyDown(KeyCode.UpArrow)) {
+	public void handleKeyBoardInput (bool isOnGround) {
+		if (Input.GetKeyDown(KeyCode.UpArrow)) {
+			playerJump(isOnGround);
+		}
+
+		if (Input.GetKeyDown(KeyCode.R)) {
+			playerRestart();
+		}
+	}
+
+	public void playerJump(bool isOnGround) {
+		if (isOnGround && !isInAir) {
 			float jumpForce = mJumpForce;
 			mRigidbody.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
 			isInAir = true;
@@ -85,10 +97,8 @@ public class PlayerController : MonoBehaviour {
 		return hit.collider != null;
 	}
 
-	private void handlePlayerRestart() {
-		if (Input.GetKeyDown(KeyCode.R)) {
-			death();
-		}
+	private void playerRestart() {
+		death();
 	}
 	private bool canCastWave() {
 		if (isCastingWave) {
