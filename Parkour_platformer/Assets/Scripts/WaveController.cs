@@ -23,7 +23,7 @@ public class WaveController : MonoBehaviour {
 	private const float triggerTimeMinum = 0.1f;
 	private bool castingWave = false;
 
-	Dictionary<string, float> waveTriggerGuard = new Dictionary<string, float>();
+	// Dictionary<string, float> waveTriggerGuard = new Dictionary<string, float>();
 
 	private float waveInitialRadius = 0.0f;
 	// Use this for initialization
@@ -37,11 +37,12 @@ public class WaveController : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		if (waveCastTimer > 0) {
 			waveCastTimer -= Time.deltaTime;
 		}
 		updateWave();
+		mWaveEffectController.updateHandler();
 	}
 	public bool canCastWave() {
 		return waveCastTimer <= 0;
@@ -87,7 +88,12 @@ public class WaveController : MonoBehaviour {
 		}
 	}
 
-	bool canWaveTriggerObject(Vector3 playerPosition, Vector3 targetPosition) {
+	bool canWaveTriggerObject(Vector3 playerPosition, Collider2D target) {
+		if(!target.enabled) {
+			return false;
+		}
+
+		Vector3 targetPosition = target.transform.position;
 		float distance = Vector2.Distance(playerPosition, targetPosition);
 		RaycastHit2D[] hits = Physics2D.RaycastAll(playerPosition, targetPosition - playerPosition, distance);
 		for (int i = 0; i < hits.Length; ++i) {
@@ -104,18 +110,19 @@ public class WaveController : MonoBehaviour {
 			return;
 		}
 
-		if (!canWaveTriggerObject(castPosition, collider.transform.position)) {
+		if (!canWaveTriggerObject(castPosition, collider)) {
 			return;
 		}
-		float curTime = Time.time;
-		if (waveTriggerGuard.ContainsKey(collider.name)) {
-			float lastTriggerTime = waveTriggerGuard[collider.name];
-			if (curTime - lastTriggerTime < triggerTimeMinum) {
-				return;
-			}
-		}
+		
+		// float curTime = Time.time;
+		// if (waveTriggerGuard.ContainsKey(collider.name)) {
+		// 	float lastTriggerTime = waveTriggerGuard[collider.name];
+		// 	if (curTime - lastTriggerTime < triggerTimeMinum) {
+		// 		return;
+		// 	}
+		// }
 
-		waveTriggerGuard[collider.name] = curTime;
+		// waveTriggerGuard[collider.name] = curTime;
 
 		collider.SendMessageUpwards("handleWaveAction");
 	}

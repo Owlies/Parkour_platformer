@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class PhotonWaveEffectsController : MonoBehaviour {
 	public WaveController waveController;
-	private const float ShortWaveMultiplier = 6.75f;
-	private const float MidWaveMultiplier = 7.5f;
-	private const float LongWaveMultiplier = 4.5f;
 	public GameObject photonPrefab;
 	public int numberOfPhoton = 180;
 	public Color waveColor = Color.blue;
@@ -41,13 +38,13 @@ public class PhotonWaveEffectsController : MonoBehaviour {
 		destroyTimeLimit = 60.0f;
 		mPlayer = GameObject.FindGameObjectWithTag("Player");
 
-		photonSpeedShort = waveController.ShortWaveSpeed;
-		photonSpeedMid = waveController.MidWaveSpeed;
-		photonSpeedLong = waveController.LongWaveSpeed;
+		photonSpeedShort = waveController.ShortWaveSpeed * mPlayer.transform.localScale.x;
+		photonSpeedMid = waveController.MidWaveSpeed * mPlayer.transform.localScale.x;
+		photonSpeedLong = waveController.LongWaveSpeed * mPlayer.transform.localScale.x;
 
-		photonShortMaximumRange = waveController.ShortWaveMaximumRadius;
-		photonMidMaximumRange = waveController.MidWaveMaximumRadius;
-		photonLongMaximumRange = waveController.LongWaveMaximumRadius;
+		photonShortMaximumRange = waveController.ShortWaveMaximumRadius * mPlayer.transform.localScale.x;
+		photonMidMaximumRange = waveController.MidWaveMaximumRadius * mPlayer.transform.localScale.x;
+		photonLongMaximumRange = waveController.LongWaveMaximumRadius * mPlayer.transform.localScale.x;
 	}
 
 	private void createLine(Vector3 startPos, Vector3 endPos) {
@@ -68,7 +65,7 @@ public class PhotonWaveEffectsController : MonoBehaviour {
         line.gameObject.layer = 5;
     }
 
-	void Update() {
+	public void updateHandler() {
 		updateLines();
 		updatePhotons();
 		lastCastTime += Time.deltaTime;
@@ -135,7 +132,6 @@ public class PhotonWaveEffectsController : MonoBehaviour {
 	}
 
 	public void clearLinesAndPhotons() {
-		Debug.Log("clearLinesAndPhotons");
 		for (int i = 0; i < numberOfPhoton; ++i) {
 			if (lines[i] != null) {
 				Destroy(lines[i].gameObject);
@@ -152,13 +148,13 @@ public class PhotonWaveEffectsController : MonoBehaviour {
 	}
 	public void PlayEffect(WaveController.WaveType waveType) {
 		if (waveType == WaveController.WaveType.Long) {
-			photonSpeed = photonSpeedLong * LongWaveMultiplier;
+			photonSpeed = photonSpeedLong;
 			photonMaximumRange = photonLongMaximumRange;
 		} else if (waveType == WaveController.WaveType.Mid) {
-			photonSpeed = photonSpeedMid * MidWaveMultiplier;
+			photonSpeed = photonSpeedMid;
 			photonMaximumRange = photonMidMaximumRange;
 		} else if (waveType == WaveController.WaveType.Short) {
-			photonSpeed = photonSpeedShort * ShortWaveMultiplier;
+			photonSpeed = photonSpeedShort;
 			photonMaximumRange = photonShortMaximumRange;
 		}
 
