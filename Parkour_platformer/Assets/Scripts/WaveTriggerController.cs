@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WaveTriggerController : MonoBehaviour {
 	public GameObject triggerActionHandler;
-	public float resetTime = 0.0f;
+	public float resetTime = 1.0f;
 	private float triggerTimer = 0.0f;
 	private MusicManager mMusicManager;
 	private Animator mAnimator;
@@ -12,6 +12,7 @@ public class WaveTriggerController : MonoBehaviour {
 	void Start () {
 		//mMusicManager = GameObject.FindGameObjectWithTag("musicManager").GetComponent<MusicManager>();
 		mAnimator = this.GetComponent<Animator>();
+		triggerTimer = resetTime;
 	}
 	
 	// Update is called once per frame
@@ -37,6 +38,9 @@ public class WaveTriggerController : MonoBehaviour {
 	}
 
 	void handleWaveAction() {
+		if(triggerTimer < resetTime) {
+			return;
+		}
 		// mMusicManager.PlayWaveTriggerSound();
 		mAnimator.SetBool("triggerEnabled", true);
 		triggerTimer = 0.0f;
